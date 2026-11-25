@@ -1,0 +1,7 @@
+# wanderlust-explorer
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
