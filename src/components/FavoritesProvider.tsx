@@ -1,46 +1,52 @@
 /* ------------------------------------------------------------------ */
-/*  src/components/FavoritesProvider.tsx – React Context provider      */
-/*  for the favorites state. Wraps the app so any descendant can       */
-/*  call useFavoritesContext().                                        */
+/*  src/components/FavoritesProvider.tsx – Favorites context            */
+/*  Shared state across pages using React Context + useState.          */
 /* ------------------------------------------------------------------ */
 
 "use client";
 
-import React, { createContext, useContext } from "react";
-import { useFavorites, type UseFavoritesReturn } from "../hooks/useFavorites";
+import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
-const FavoritesContext = createContext<UseFavoritesReturn | null>(null);
-
-interface FavoritesProviderProps {
-  children: React.ReactNode;
+interface FavoritesContextValue {
+  favorites: string[];
+  isFavorite: (id: string) => boolean;
+  toggleFavorite: (id: string) => void;
 }
 
+const FavoritesContext = createContext<FavoritesContextValue | null>(null);
+
 /**
- * FavoritesProvider – wraps the app and provides favorites state
- * to all descendant components via `useFavoritesContext()`.
+ * FavoritesProvider – wraps the app and shares the favorites state
+ * (array of experience IDs) via context.
  */
-export function FavoritesProvider({ children }: FavoritesProviderProps) {
-  const favoritesState = useFavorites();
+export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const isFavorite = useCallback(
+    (id: string) => favorites.includes(id),
+    [favorites],
+  );
+
+  const toggleFavorite = useCallback((id: string) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id],
+    );
+  }, []);
 
   return (
-    <FavoritesContext.Provider value={favoritesState}>
+    <FavoritesContext.Provider value={{ favorites, isFavorite, toggleFavorite }}>
       {children}
     </FavoritesContext.Provider>
   );
 }
 
 /**
- * Consume the favorites context inside any child component.
- *
- * Usage:
- *   const { isFavorite, toggleFavorite, favoriteCount } = useFavoritesContext();
+ * Hook to consume the favorites context.
  */
-export function useFavoritesContext(): UseFavoritesReturn {
+export function useFavoritesContext(): FavoritesContextValue {
   const ctx = useContext(FavoritesContext);
   if (!ctx) {
-    throw new Error(
-      "useFavoritesContext() called outside of a <FavoritesProvider> wrapper.",
-    );
+    throw new Error("useFavoritesContext must be used within a <FavoritesProvider>");
   }
   return ctx;
 }

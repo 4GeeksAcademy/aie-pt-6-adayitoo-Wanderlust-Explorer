@@ -1,11 +1,13 @@
 /* ------------------------------------------------------------------ */
 /*  src/app/experiences/[id]/page.tsx – Experience detail page       */
 /*  Server Component. Busca por ID, muestra toda la info.            */
+/*  Uses a small client component (DocumentTitle) for the title tag. */
 /* ------------------------------------------------------------------ */
 
 import { notFound } from "next/navigation";
 import { getExperienceById } from "../../../data/experiences";
 import Link from "next/link";
+import DocumentTitle from "../../../components/DocumentTitle";
 
 interface DetailParams {
   id: string;
@@ -25,7 +27,6 @@ export default function ExperienceDetailPage({
 
   if (!experience) {
     notFound();
-    // Return after notFound() so the compiler knows execution stops here
     return;
   }
 
@@ -52,6 +53,9 @@ export default function ExperienceDetailPage({
 
   return (
     <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* ── Dynamic document title ──────────────────────────── */}
+      <DocumentTitle title={`${title} — Wanderlust Explorer`} />
+
       {/* ── Back link ──────────────────────────────────────────── */}
       <Link
         href="/experiences"

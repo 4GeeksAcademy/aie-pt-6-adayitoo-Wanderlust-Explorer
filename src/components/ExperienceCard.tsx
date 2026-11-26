@@ -1,14 +1,12 @@
 /* ------------------------------------------------------------------ */
 /*  src/components/ExperienceCard.tsx – Card component for a single    */
-/*  travel experience. Includes the favourite heart button internally. */
-/*  Tailwind CSS classes for a clean, modern look.                    */
+/*  travel experience. Includes the favourite heart button inline.     */
 /* ------------------------------------------------------------------ */
 
 "use client";
 
 import type { Experience } from "../types/index";
 import { useFavoritesContext } from "./FavoritesProvider";
-import FavoriteButton from "./FavoriteButton";
 
 export interface ExperienceCardProps {
   experience: Experience;
@@ -16,15 +14,13 @@ export interface ExperienceCardProps {
 
 /**
  * ExperienceCard – renders a single experience as a card.
- * Consumes the favorites context internally so pages only need to pass
- * `experience={exp}`.
- *
- * Styled with Tailwind utility classes.
+ * Heart icon in the top-right corner reflects the favourite state.
  */
 export function ExperienceCard({ experience }: ExperienceCardProps) {
   const { id, title, subtitle, category, difficulty, duration, price, rating, reviewCount, imageUrl, location, country } = experience;
 
   const { isFavorite, toggleFavorite } = useFavoritesContext();
+  const fav = isFavorite(id);
 
   const fullStars = Math.round(rating);
   const emptyStars = 5 - fullStars;
@@ -42,13 +38,15 @@ export function ExperienceCard({ experience }: ExperienceCardProps) {
         <span className="absolute top-3 left-3 inline-flex items-center rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm">
           {category}
         </span>
-        <div className="absolute top-3 right-3">
-          <FavoriteButton
-            experienceId={id}
-            isFavorite={isFavorite(id)}
-            onToggle={toggleFavorite}
-          />
-        </div>
+        <button
+          className="absolute top-3 right-3 inline-flex items-center justify-center rounded-full w-8 h-8 bg-white/80 hover:bg-white/60 transition-colors text-lg"
+          onClick={() => toggleFavorite(id)}
+          aria-label={fav ? "Remove from favorites" : "Add to favorites"}
+          aria-pressed={fav}
+          type="button"
+        >
+          <span aria-hidden="true">{fav ? "❤️" : "🤍"}</span>
+        </button>
       </div>
 
       {/* ── Body ─────────────────────────────────────────────── */}
